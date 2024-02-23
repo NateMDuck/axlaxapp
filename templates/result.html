@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drill Results</title>
+</head>
+<body>
+    <h1>Drill Results</h1>
+
+    <div id="drill-container"></div>
+
+    <script>
+        var drillContainer = document.getElementById('drill-container');
+
+        function getNextDrill() {
+            fetch('/', { method: 'POST', body: new FormData(document.getElementById('form')) })
+                .then(response => response.json())
+                .then(data => {
+                    // Display the drill text
+                    var drillText = document.createElement('p');
+                    drillText.textContent = data.move + ' - ' + data.shot;
+                    drillContainer.appendChild(drillText);
+
+                    // Play the audio
+                    var audio = new Audio("{{ url_for('static', filename='audio/drill' + loop.index|string + '.mp3') }}");
+                    audio.play();
+
+                    // Wait for the specified sleep time before requesting the next drill
+                    setTimeout(getNextDrill, {{ sleep_time }} * 1000);  // Convert to milliseconds
+                });
+        }
+
+        // Start fetching drills when the page is loaded
+        window.addEventListener('load', getNextDrill);
+    </script>
+</body>
+</html>
